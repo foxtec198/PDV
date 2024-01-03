@@ -1,55 +1,92 @@
-from datetime import datetime as dt
+from time import strftime as st
+from sqlite3 import connect
 import requests as rq
+from random import randint
+from getpass import getpass
 
 class PDV:
     def __init__(self):
+        self.dt = "%d/%m/%Y - %H:%M"
         self.link = 'https://pdv-v1-aeffb-default-rtdb.firebaseio.com/Lojas/'
-        self.verificacaoDeLoja()
         
     def verificacaoDeLoja(self):
-        with open('my.ini') as file:
-            dados = file.readlines()
-            self.loja = dados[0].split()[1]
-            self.cidade = dados[1].split()[1]
-            self.key = dados[2].split()[1]
-            self.nomeLoja = dados[3].split()[1]
-            self.logoLoja = dados[4].split()[1]
-            file.close()
+        conn = connect('src/myini.db')
+        c = conn.cursor()
+        c.execute('create table if not exists cfg(loja INTEGER, key INT, cidade TEXT, nomeLoja TEXT, logo VARCHAR(100))')
+        cfg = c.execute('select * from cfg').fetchall()
+        if cfg == []:
+            c.execute('insert into cfg(loja, key, cidade, nomeLoja, logo) Values(0, 0, "Londrina","PDV Server","src/logo.png")')
+            conn.commit()
+            
+        cfg = c.execute('select * from cfg').fetchall()
+        for id in cfg:
+            self.loja = id[0]
+            self.key = id[1]
+            self.cidade = id[2]
+            self.nomeLoja = id[3]
+            self.logoLoja = id[4]
+        
+        # PRIMEIRO ACESSO 
+        if self.loja == 0 and self.key == 0:
+            link = 'https://pdv-v1-aeffb-default-rtdb.firebaseio.com/adm/'
+            r = rq.get(f'{link}user/.json')
+            d = r.json()
+            uid = input('User: ').lower()
+            pwd = getpass('Senha: ')
+            if uid == d['uid'].lower():
+                if pwd == d['pwd']:
+                    r = rq.get(f'{link}keys/.json')
+                    keys =  r.json()
+                    for id in keys:
+                        verify = keys[id]['verify']
+                        if not verify:
+                            key = keys[id]['key']
+                            idKey = id
+                            nLoja = randint(100000, 999999)
+                            rq.patch(f'{link}keys/{idKey}.json', json={'verify':True})
+                            print(f'Chave {key} designada com sucesso!')
+                            c.execute(f'update cfg set loja = "{nLoja}", key = "{key}"')
+                            conn.commit()
+                            cfg = c.execute('select * from cfg').fetchall()
+                            for id in cfg:
+                                self.loja = id[0]
+                                self.key = id[1]
+                            rq.post(f'{self.link}.json', json={'Loja': {'numero': nLoja}})
+                            break
+                else:
+                    print('senha incorreta')
+            else:
+                print('usuário incorreto')
             
         # VERIFICANDO LOJA 
         r = rq.get(f'{self.link}.json')
         lojas = r.json()
+        self.existLoja = False
         if lojas != None:
             for id in lojas:
-                r = rq.get(f'{self.link}{id}/Loja.json')
-                dlojas = r.json()
+                dlojas = lojas[id]['Loja']
                 if dlojas['numero'] == self.loja:
                     self.id = id
                     self.existLoja = True
                     break
-            else: self.existLoja = False
-        else: self.existLoja = False
                 
         # VERIFICANDO AUT KEY      
-        r = rq.get(f'{self.link}adm/keys.json')
+        r = rq.get(f'https://pdv-v1-aeffb-default-rtdb.firebaseio.com/adm/keys.json')
         ids = r.json()
+        self.existKey = False
+        self.verify = False
         if ids != None:
             for id in ids:
                 if int(self.key) == ids[id]['key']:
                     self.existKey = True
                     self.verify = ids[id]['verify']
                     break
-            else: 
-                self.existKey = False
-                self.verify = False
-        else: 
-            self.existKey = False
-            self.verify = False
                 
         if self.existLoja and self.existKey and self.verify:
             self.link = f'{self.link}/{self.id}/'
-            dd = {'cidade': self.cidade, 'Nome da Loja': self.nomeLoja}
-            rq.patch(f'{self.link}.json', json=dd)
+            dd = {'cidade': self.cidade, 'nome da loja': self.nomeLoja, 'Criada': st(self.dt)}
+            rq.patch(f'{self.link}Loja/.json', json=dd)
+            
         else: print(f'Loja = {self.existLoja}, Key = {self.existKey}, Validação = {self.verify}')
             
     def consultaCategorias(self):
@@ -57,21 +94,18 @@ class PDV:
         self.d = r.json()
             
     def cadastrarCategorias(self, ctg):
-        valores = {'Nome': ctg}
+        valores = {'Nome': ctg, 'Data de Cadastro': st(self.dt)}
         self.consultaCategorias()
         
+        exist = False
         if self.d != None:
             for id in self.d:
                 self.dados = self.d[id]
                 if ctg.lower() == self.dados['Nome'].lower():
-                    print(f'Categoria {ctg} Ja existe')
                     exist = True
                     break
-                else: exist = False
-        else: exist = False
         
         if not exist:
-            print(f'Categoria {ctg} adicionada com sucesso')
             rq.post(f'{self.link}Categorias/.json', json=valores)
     
     def excluirCategorias(self, ctg):
@@ -86,14 +120,14 @@ class PDV:
             
     def cadastrarProdutos(self, ean, nome, categoria, valorCusto, valorVenda, quantidade):
         self.consultarProdutos()
+        exist = False
         if self.todosProdutos != None:
             for id in self.todosProdutos:
                 prod = self.todosProdutos[id]
                 if prod['EAN'] == int(ean):
                     exist = True
                     break
-                else: exist = False
-        else: exist = False
+                
         if not exist:
             dc = {
                 'EAN': ean,
@@ -101,7 +135,8 @@ class PDV:
                 'Categoria': categoria,
                 'Valor de Custo': valorCusto,
                 'Valor de Venda': valorVenda,
-                'Quantidade': quantidade
+                'Quantidade': quantidade,
+                'Data de Entrada': st(self.dt)
                 }
             rq.post(f'{self.link}/Produtos.json', json = dc)
         
@@ -134,8 +169,6 @@ class PDV:
             quantidade += qAtual
             js = {'Quantidade': quantidade}
             rq.patch(f'{self.link}/Produtos/{idA}/.json', json=js)
-
-        
 
 if __name__ == "__main__":
     PDV()
