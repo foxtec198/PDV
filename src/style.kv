@@ -164,14 +164,22 @@
                     app.cadastrarUsuario(cpfC.text, nomeC.text, emailC.text, pwdC.text)
 <Main>
     name: 'main'
-    MDFloatLayout:
-        FitImage:
-            id: logo
-            source: 'src/logo.png'
-            size_hint: None, None
-            size: 58, 80
-            pos_hint: {'center_x': .05,'center_y': .9}
-        MDLabel:
-            text: 'Boa Tarde, Guilherme '
-            halign: 'center'
-            pos_hint: {'center_y': .9}
+        # FitImage:
+        #     id: logo
+        #     source: 'src/logo.png'
+        #     size_hint: None, None
+        #     size: 58, 80
+        #     pos_hint: {'center_x': .05,'center_y': .9}
+        # MDLabel:
+        #     text: 'Boa Tarde, Guilherme '
+        #     halign: 'center'
+        #     pos_hint: {'center_y': .9}
+    MDBoxLayout:
+        orientation: 'horizontal'
+        padding: 10
+        MDBoxLayout:
+            md_bg_color: 'red'
+            width: 10
+            height: 10
+        MDBoxLayout:
+            md_bg_color: 'blue'
