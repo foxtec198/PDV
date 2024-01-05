@@ -1,0 +1,177 @@
+<FirstLogin>
+    name: 'FL'
+    BoxLayout:
+        size: 50, 50
+        FloatLayout:
+            FitImage:
+                halign: 'center'
+                source: 'src/iconLogin.png'
+                size_hint: None, None
+                size: 300, 300
+                pos_hint: {'center_x': 0.5,'center_y': .5}
+        FloatLayout:
+            MDLabel:
+                id: tt
+                text: "PDV v1"
+                halign: 'center'
+                pos_hint: {'center_x': 0.5,'center_y': .8}
+            MDTextField:
+                id: user
+                pos_hint: {'center_x': 0.5,'center_y': .6}
+                hint_text: "User"
+                size_hint: .8, None
+                icon_left: "badge-account"
+            MDTextField:
+                id: pwd
+                pos_hint: {'center_x': 0.5,'center_y': .4}
+                hint_text: "Senha"
+                size_hint: .8, None
+                password: True
+                icon_left: "key-chain"
+            MDFillRoundFlatIconButton:
+                pos_hint: {'center_x': 0.5,'center_y': .2}
+                text: "Gerar"
+                size_hint: .8, None
+                icon: 'key'
+                on_press: 
+                    app.verificar()
+<Login>
+    name: 'login'
+    BoxLayout:
+        size: 50, 50
+        FloatLayout:
+            FitImage:
+                halign: 'center'
+                source: 'src/iconLogin.png'
+                size_hint: None, None
+                size: 300, 300
+                pos_hint: {'center_x': 0.5,'center_y': .5}
+
+        FloatLayout:
+            MDLabel:
+                id: tt
+                text: "PDV v1"
+                halign: 'center'
+                pos_hint: {'center_x': 0.5,'center_y': .8}
+
+            MDTextField:
+                id: userL
+                pos_hint: {'center_x': 0.5,'center_y': .6}
+                hint_text: "CPF"
+                input_type: 'number'
+                size_hint: .8, None
+                icon_left: "badge-account"
+
+            MDTextField:
+                id: pwdL
+                pos_hint: {'center_x': 0.5,'center_y': .5}
+                hint_text: "Senha"
+                size_hint: .8, None
+                password: True
+                icon_left: "key-chain"
+
+            MDIconButton:
+                icon: 'eye-off'
+                pos_hint: {'center_x': .85,'center_y': .5}
+                theme_text_color: 'Hint'
+                on_release:
+                    self.icon = 'eye' if self.icon == 'eye-off' else 'eye-off'
+                    pwdL.password =False if pwdL.password is True else True
+
+            MDFlatButton:
+                text: 'Criar Usuário'
+                pos_hint: {'center_x': 0.5,'center_y': .4}
+                on_release:
+                    app.root.transition.direction = 'left'
+                    app.root.current = 'create'
+                
+            MDFillRoundFlatIconButton:
+                pos_hint: {'center_x': 0.5,'center_y': .25}
+                text: "Login"
+                size_hint: .8, None
+                icon: 'key'
+                on_press: 
+                    app.login(userL.text, pwdL.text)
+<Create>
+    name: 'create'
+    BoxLayout:
+        size: 50, 50
+        FloatLayout:
+            FitImage:
+                halign: 'center'
+                source: 'src/iconLogin.png'
+                size_hint: None, None
+                size: 300, 300
+                pos_hint: {'center_x': 0.5,'center_y': .5}
+
+            MDIconButton:
+                pos_hint: {'center_x': 0.05,'center_y': .95}
+                icon: 'arrow-left'
+                on_release:
+                    app.root.transition.direction = 'right'
+                    app.root.current = 'login'
+        FloatLayout:
+            MDLabel:
+                id: tt
+                text: "PDV v1"
+                halign: 'center'
+                pos_hint: {'center_x': 0.5,'center_y': .8}
+
+            MDTextField:
+                id: emailC
+                pos_hint: {'center_x': 0.5,'center_y': .7}
+                hint_text: "Email"
+                validator: 'email'
+                size_hint: .8, None
+                icon_left: "at"
+
+            MDTextField:
+                id: nomeC
+                pos_hint: {'center_x': 0.5,'center_y': .6}
+                hint_text: "Nome Completo"
+                size_hint: .8, None
+                icon_left: "account-tie"
+
+            MDTextField:
+                id: cpfC
+                pos_hint: {'center_x': 0.5,'center_y': .5}
+                hint_text: "CPF"
+                size_hint: .8, None
+                icon_left: "badge-account"
+
+            MDTextField:
+                id: pwdC
+                pos_hint: {'center_x': 0.5,'center_y': .4}
+                hint_text: "Criar Senha"
+                size_hint: .8, None
+                password: False
+                icon_left: "key-chain"
+
+            MDIconButton:
+                icon: 'eye'
+                pos_hint: {'center_x': .85,'center_y': .4}
+                theme_text_color: 'Hint'
+                on_release:
+                    self.icon = 'eye' if self.icon == 'eye-off' else 'eye-off'
+                    pwdC.password =False if pwdC.password is True else True
+
+            MDFillRoundFlatIconButton:
+                pos_hint: {'center_x': 0.5,'center_y': .25}
+                text: "Criar Usuário"
+                size_hint: .8, None
+                icon: 'account-plus'
+                on_press: 
+                    app.cadastrarUsuario(cpfC.text, nomeC.text, emailC.text, pwdC.text)
+<Main>
+    name: 'main'
+    MDFloatLayout:
+        FitImage:
+            id: logo
+            source: 'src/logo.png'
+            size_hint: None, None
+            size: 58, 80
+            pos_hint: {'center_x': .05,'center_y': .9}
+        MDLabel:
+            text: 'Boa Tarde, Guilherme '
+            halign: 'center'
+            pos_hint: {'center_y': .9}

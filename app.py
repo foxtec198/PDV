@@ -2,23 +2,22 @@ from time import strftime as st
 from sqlite3 import connect
 import requests as rq
 from random import randint
-from getpass import getpass
 
-class PDV:
+class BackEnd:
     def __init__(self):
         self.dt = "%d/%m/%Y - %H:%M"
+        self.conn = connect('src/myini.db')
+        self.c = self.conn.cursor()
         self.link = 'https://pdv-v1-aeffb-default-rtdb.firebaseio.com/Lojas/'
         
-    def verificacaoDeLoja(self):
-        conn = connect('src/myini.db')
-        c = conn.cursor()
-        c.execute('create table if not exists cfg(loja INTEGER, key INT, cidade TEXT, nomeLoja TEXT, logo VARCHAR(100))')
-        cfg = c.execute('select * from cfg').fetchall()
+    def verificacaoDeLoja(self, uid, pwd):
+        self.c.execute('create table if not exists cfg(loja INTEGER, key INT, cidade TEXT, nomeLoja TEXT, logo VARCHAR(100))')
+        cfg = self.c.execute('select * from cfg').fetchall()
         if cfg == []:
-            c.execute('insert into cfg(loja, key, cidade, nomeLoja, logo) Values(0, 0, "Londrina","PDV Server","src/logo.png")')
-            conn.commit()
+            self.c.execute('insert into cfg(loja, key, cidade, nomeLoja, logo) Values(0, 0, "Londrina","PDV Server","src/logo.png")')
+            self.conn.commit()
             
-        cfg = c.execute('select * from cfg').fetchall()
+        cfg = self.c.execute('select * from cfg').fetchall()
         for id in cfg:
             self.loja = id[0]
             self.key = id[1]
@@ -31,8 +30,6 @@ class PDV:
             link = 'https://pdv-v1-aeffb-default-rtdb.firebaseio.com/adm/'
             r = rq.get(f'{link}user/.json')
             d = r.json()
-            uid = input('User: ').lower()
-            pwd = getpass('Senha: ')
             if uid == d['uid'].lower():
                 if pwd == d['pwd']:
                     r = rq.get(f'{link}keys/.json')
@@ -45,13 +42,13 @@ class PDV:
                             nLoja = randint(100000, 999999)
                             rq.patch(f'{link}keys/{idKey}.json', json={'verify':True})
                             print(f'Chave {key} designada com sucesso!')
-                            c.execute(f'update cfg set loja = "{nLoja}", key = "{key}"')
-                            conn.commit()
-                            cfg = c.execute('select * from cfg').fetchall()
+                            self.c.execute(f'update cfg set loja = "{nLoja}", key = "{key}"')
+                            self.conn.commit()
+                            cfg = self.c.execute('select * from cfg').fetchall()
                             for id in cfg:
                                 self.loja = id[0]
                                 self.key = id[1]
-                            rq.post(f'{self.link}.json', json={'Loja': {'numero': nLoja}})
+                            rq.post(f'{self.link}.json', json={'Loja': {'numero': nLoja, 'Criada': st(self.dt)}})
                             break
                 else:
                     print('senha incorreta')
@@ -84,10 +81,10 @@ class PDV:
                 
         if self.existLoja and self.existKey and self.verify:
             self.link = f'{self.link}/{self.id}/'
-            dd = {'cidade': self.cidade, 'nome da loja': self.nomeLoja, 'Criada': st(self.dt)}
+            dd = {'cidade': self.cidade, 'nome da loja': self.nomeLoja}
             rq.patch(f'{self.link}Loja/.json', json=dd)
-            
-        else: print(f'Loja = {self.existLoja}, Key = {self.existKey}, Validação = {self.verify}')
+            return True
+        else: return False
             
     def consultaCategorias(self):
         r = rq.get(f'{self.link}Categorias/.json')
@@ -171,4 +168,4 @@ class PDV:
             rq.patch(f'{self.link}/Produtos/{idA}/.json', json=js)
 
 if __name__ == "__main__":
-    PDV()
+    BackEnd()
