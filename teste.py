@@ -1,20 +1,21 @@
 from flet import *
 
+class Cardx(Card):
+    def __init__(self, Icone=icons.MONITOR_HEART_OUTLINED, Titulo = 'Titulo', Sub = 'Subtitulo'):
+        super().__init__()
+        self.content = Container(
+            content=Column([
+                        ListTile(
+                        leading=Icon(Icone),
+                        title=Text(Titulo),
+                        subtitle=Text(Sub),
+                        )
+                ], alignment=MainAxisAlignment.CENTER),
+                width=400,
+                padding=5
+            )
+
 def main(page: Page):
-    class Cardx(Card):
-        def __init__(self, Icone=icons.MONITOR_HEART_OUTLINED, Titulo = 'Titulo', Sub = 'Subtitulo'):
-            super().__init__()
-            self.content = Container(
-                content=Column([
-                            ListTile(
-                            leading=Icon(Icone),
-                            title=Text(Titulo),
-                            subtitle=Text(Sub),
-                            )
-                    ], alignment=MainAxisAlignment.CENTER),
-                    width=400,
-                    padding=5
-                )
     def HOME(x):
         a = x.control.selected_index
         if a == 1:
@@ -71,4 +72,4 @@ def main(page: Page):
                 )
     
     page.add(home)
-app(target=main)
+app(target=main, view=WEB_BROWSER)
