@@ -177,9 +177,30 @@
     MDBoxLayout:
         orientation: 'horizontal'
         padding: 10
-        MDBoxLayout:
-            md_bg_color: 'red'
-            width: 10
-            height: 10
-        MDBoxLayout:
-            md_bg_color: 'blue'
+        spacing: 10
+        MDCard:
+            id: drawer
+            md_bg_color: 'gray'
+            width: 1
+            size_hint_max_x: 200
+        MDCard:
+            md_bg_color: 'gray'
+            MDBoxLayout:
+                orientation: 'vertical'
+                padding: 10
+                spacing: 10
+                MDCard:
+                    md_bg_color: 'blue'
+                    size_hint_max_y: 50
+                MDBoxLayout:
+                    padding: 10
+                    spacing: 10
+                    orientation: 'horizontal'        
+                    MDCard:
+                        md_bg_color: 'blue'
+                    MDCard:
+                        md_bg_color: 'blue'
+                MDCard:
+                    md_bg_color: 'blue'
+                
+
