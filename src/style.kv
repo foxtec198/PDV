@@ -12,7 +12,7 @@
         FloatLayout:
             MDLabel:
                 id: tt
-                text: "PDV v1"
+                text: "Loja ainda não cadastrada\nSeja bem vindo ao PDV Center"
                 halign: 'center'
                 pos_hint: {'center_x': 0.5,'center_y': .8}
             MDTextField:
@@ -34,7 +34,7 @@
                 size_hint: .8, None
                 icon: 'key'
                 on_press: 
-                    app.verificar()
+                    app.verificar(user.text, pwd.text)
 <Login>
     name: 'login'
     BoxLayout:
@@ -50,17 +50,17 @@
         FloatLayout:
             MDLabel:
                 id: tt
-                text: "PDV v1"
+                text: "Faça seu Login!!"
                 halign: 'center'
                 pos_hint: {'center_x': 0.5,'center_y': .8}
 
             MDTextField:
                 id: userL
                 pos_hint: {'center_x': 0.5,'center_y': .6}
-                hint_text: "CPF"
-                input_type: 'number'
+                hint_text: "Email"
+                validator: 'email'
                 size_hint: .8, None
-                icon_left: "badge-account"
+                icon_left: "email-multiple"
 
             MDTextField:
                 id: pwdL
@@ -110,16 +110,17 @@
                 on_release:
                     app.root.transition.direction = 'right'
                     app.root.current = 'login'
+
         FloatLayout:
             MDLabel:
                 id: tt
-                text: "PDV v1"
+                text: "Realize seu cadastro!!"
                 halign: 'center'
                 pos_hint: {'center_x': 0.5,'center_y': .8}
 
             MDTextField:
                 id: emailC
-                pos_hint: {'center_x': 0.5,'center_y': .7}
+                pos_hint: {'center_x': 0.5,'center_y': .6}
                 hint_text: "Email"
                 validator: 'email'
                 size_hint: .8, None
@@ -127,17 +128,10 @@
 
             MDTextField:
                 id: nomeC
-                pos_hint: {'center_x': 0.5,'center_y': .6}
+                pos_hint: {'center_x': 0.5,'center_y': .5}
                 hint_text: "Nome Completo"
                 size_hint: .8, None
                 icon_left: "account-tie"
-
-            MDTextField:
-                id: cpfC
-                pos_hint: {'center_x': 0.5,'center_y': .5}
-                hint_text: "CPF"
-                size_hint: .8, None
-                icon_left: "badge-account"
 
             MDTextField:
                 id: pwdC
@@ -161,46 +155,56 @@
                 size_hint: .8, None
                 icon: 'account-plus'
                 on_press: 
-                    app.cadastrarUsuario(cpfC.text, nomeC.text, emailC.text, pwdC.text)
+                    app.cadastrarUsuario(emailC.text, pwdC.text, nomeC.text)
 <Main>
     name: 'main'
-        # FitImage:
-        #     id: logo
-        #     source: 'src/logo.png'
-        #     size_hint: None, None
-        #     size: 58, 80
-        #     pos_hint: {'center_x': .05,'center_y': .9}
-        # MDLabel:
-        #     text: 'Boa Tarde, Guilherme '
-        #     halign: 'center'
-        #     pos_hint: {'center_y': .9}
     MDBoxLayout:
         orientation: 'horizontal'
         padding: 10
         spacing: 10
         MDCard:
             id: drawer
-            md_bg_color: 'gray'
+            md_bg_color: '#333333'
             width: 1
             size_hint_max_x: 200
+            MDFloatLayout:
+                FitImage:
+                    pos_hint: {'center_x': 0.5,'center_y': .85}
+                    id: mainLogo
+                    size_hint: None, None
+                    size: 150, 150
+                    radius: '100dp'
+                    md_bg_color: '#333333'
+
+                MDLabel:
+                    id: lblLoja
+                    halign: 'center'
+                    pos_hint: {'center_x': 0.5,'center_y': .7}
+
+                MDFillRoundFlatIconButton:
+                    md_bg_color: '#e63946'
+                    pos_hint: {'center_x': 0.5,'center_y': .05}
+                    text: "Sair do app"
+                    size_hint: .8, None
+                    icon: 'run'
+                    on_press: 
+                        app.logout()
+                        app.root.current = 'login'
+
         MDCard:
-            md_bg_color: 'gray'
+            md_bg_color: '#333333'
             MDBoxLayout:
                 orientation: 'vertical'
                 padding: 10
                 spacing: 10
                 MDCard:
-                    md_bg_color: 'blue'
+                    md_bg_color: 'black'
                     size_hint_max_y: 50
-                MDBoxLayout:
-                    padding: 10
-                    spacing: 10
-                    orientation: 'horizontal'        
-                    MDCard:
-                        md_bg_color: 'blue'
-                    MDCard:
-                        md_bg_color: 'blue'
                 MDCard:
-                    md_bg_color: 'blue'
+                    md_bg_color: 'black'
+                MDCard:
+                    md_bg_color: 'black'
+                MDCard:
+                    md_bg_color: 'black'
                 
 
