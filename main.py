@@ -30,8 +30,7 @@ class PDV(MDApp):
         tm.primary_palette = 'Green'
         self.icon = self.logo
         self.title = self.nomeLoja
-        self.width = 800
-        self.height = dp(400)
+        self._app_window
         self.sm = MDScreenManager()
         self.sm.add_widget(Login())
         self.sm.add_widget(Create())
@@ -63,7 +62,7 @@ class PDV(MDApp):
             row_data=self.rows_dt,
         )
         self.idsMain.cardProd.add_widget(self.dt)
-        # self.update()
+        self.update()
         
     def cadastrarUsuario(self, email, pwd, nome):
         res = self.auth.create(email, pwd, nome)
@@ -88,9 +87,9 @@ class PDV(MDApp):
         self.adm.update_verify(False)
 
     def update(self):
+        t = Timer(5, self.update)
+        t.start()
         self.dt.row_data = self.rows_dt
         self.chart.chart_produtos()
         self.idsMain.produtosChart.source = 'src/produtos.png'
-        t = Timer(5, self.update)
-        t.start()
 PDV().run()
