@@ -8,6 +8,7 @@ from plotly.io import templates
 import pandas as pd
 from rembg import remove
 from PIL import Image
+from functools import cache
 
 conn = connect('src/temp.db')
 c = conn.cursor()
@@ -78,7 +79,8 @@ class Admin:
     def __init__(self):
         self.link = 'https://gestaopdv-ba13a-default-rtdb.firebaseio.com/admin'
         self.logo_padrao()
-        
+    
+    @cache
     def loja_existent(self):
         dd = c.execute('select * from Dados').fetchone()
         if dd == None: return False
@@ -140,12 +142,14 @@ class Admin:
         src = filedialog.askopenfilename(title='Selecione sua Logo!', initialdir='Downloads')
         execute(f'update Config set logo = "{src}"')
 
+    @cache
     def get_logo(self):
         logo = c.execute('select * from config').fetchone()
         if logo != None: logo = logo[0]
         elif logo == None: logo = 'src/logo.png' 
         return logo
-    
+
+    @cache
     def get_name(self):
         name = c.execute('select Loja from Dados').fetchone()
         if name != None: name = name[0]
@@ -223,7 +227,7 @@ class Charts:
         if p != 'Sem Produtos Disponiveis': 
             df = pd.DataFrame(self.loja.produtosSemEan)
             pie = px.pie(df, values='Quantidade', names='Nome do Produto', color_discrete_sequence=self.cl)
-            pie.write_image('src/produtos.png', width=400, height=400)
+            pie.write_image('src/produtos.png')#width=400, height=400)
 
         
 if __name__ == "__main__":

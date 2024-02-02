@@ -227,6 +227,8 @@
                         app.root.current = 'login'
 
         MDCard:
+            size_hint_min_y: 550 
+            size_hint_min_x: 550 
             md_bg_color: '#333333'
             spacing: dp(20)
             MDBoxLayout:
@@ -252,17 +254,22 @@
                         spacing: dp(10)
                         orientation: 'horizontal'
                         MDCard:
+                            orientation: 'vertical'
                             size_hint_min_y: 250 
                             size_hint_min_x: 250 
-                            md_bg_color: '#333333'
+                            md_bg_color: 'black'
                             FitImage:
                                 id: produtosChart
                                 source: 'src/produtos.png'
-                                size_hint: None, None
-                                size: 250, 250
+                                size_hint: 1, .6
+                                scale: fit
+                                # size: 250, 250
                                 radius: dp(20)
                         MDCard:
-                            md_bg_color: '#333333'
+                            size_hint_min_y: 250 
+                            size_hint_min_x: 250 
+                            orientation: 'vertical'
+                            md_bg_color: 'black'
 
                 MDCard:
                     orientation: 'vertical'

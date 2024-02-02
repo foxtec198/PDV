@@ -23,19 +23,19 @@ class PDV(MDApp):
         self.adm = Admin()
         self.loja = Loja()
         self.chart = Charts()
-        self.logo = self.adm.get_logo()
-        self.nomeLoja = self.adm.get_name()
         tm = self.theme_cls
         tm.theme_style = 'Dark'
         tm.primary_palette = 'Green'
-        self.icon = self.logo
-        self.title = self.nomeLoja
         self._app_window
         self.sm = MDScreenManager()
         self.sm.add_widget(Login())
         self.sm.add_widget(Create())
         self.sm.add_widget(Main())
         self.sm.add_widget(Config())
+        self.logo = self.adm.get_logo()
+        self.nomeLoja = self.adm.get_name()
+        self.icon = self.logo
+        self.title = self.nomeLoja
         return self.sm
 
     def on_start(self):
@@ -49,20 +49,21 @@ class PDV(MDApp):
         else: self.root.current = 'login'
         if self.adm.verify_login():
             self.root.current = 'main'
-        self.rows_dt = self.loja.get_produtos()
-        self.dt = MDDataTable(
-            elevation = 0,
-            column_data=[
-                ("EAN.", dp(20)),
-                ("Nome", dp(30)),
-                ("Quantidade", dp(20)),
-                ("Ultima Atualização", dp(30)),
-                ("Valor", dp(30))
-            ],
-            row_data=self.rows_dt,
-        )
-        self.idsMain.cardProd.add_widget(self.dt)
-        self.update()
+
+        # self.rows_dt = self.loja.get_produtos()
+        # self.dt = MDDataTable(
+        #     elevation = 0,
+        #     column_data=[
+        #         ("EAN.", dp(20)),
+        #         ("Nome", dp(30)),
+        #         ("Quantidade", dp(20)),
+        #         ("Ultima Atualização", dp(30)),
+        #         ("Valor", dp(30))
+        #     ],
+        #     row_data=self.rows_dt,
+        # )
+        # self.idsMain.cardProd.add_widget(self.dt)
+        # self.timer()
         
     def cadastrarUsuario(self, email, pwd, nome):
         res = self.auth.create(email, pwd, nome)
@@ -86,10 +87,18 @@ class PDV(MDApp):
     def logout(self):
         self.adm.update_verify(False)
 
+    def on_stop(self):
+        self.timer.cancel()
+
+    def timer(self):
+        self.timer = Timer(30, self.update)
+        self.timer.start()
+    
     def update(self):
-        t = Timer(5, self.update)
-        t.start()
-        self.dt.row_data = self.rows_dt
+        self.logo = self.adm.get_logo()
+        self.nomeLoja = self.adm.get_name()
+        self.dt.row_data = self.loja.get_produtos()
         self.chart.chart_produtos()
         self.idsMain.produtosChart.source = 'src/produtos.png'
+
 PDV().run()
