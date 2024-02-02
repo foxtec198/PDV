@@ -160,13 +160,14 @@
     name: 'main'
     MDBoxLayout:
         orientation: 'horizontal'
-        padding: 10
-        spacing: 10
+        padding: dp(10)
+        spacing: dp(20)
         MDCard:
             id: drawer
             md_bg_color: '#333333'
             width: 1
-            size_hint_max_x: 200
+            size_hint_max_x: 250
+            size_hint_min_x: 250
             MDFloatLayout:
                 FitImage:
                     pos_hint: {'center_x': 0.5,'center_y': .85}
@@ -181,6 +182,40 @@
                     halign: 'center'
                     pos_hint: {'center_x': 0.5,'center_y': .7}
 
+                MDList:
+                    pos_hint: {'center_x': 0.5,'center_y': .4}
+                    halign: 'center'
+                    id: list
+                    divider: 'Full'
+
+                    OneLineAvatarIconListItem:
+                        text: 'Vendas'
+                        # on_release: app.root.current = 'config'
+                        IconLeftWidget:
+                            icon: 'cart'
+                            # on_release: app.root.current = 'config'
+
+                    OneLineAvatarIconListItem:
+                        text: 'Produtos'
+                        # on_release: app.root.current = 'config'
+                        IconLeftWidget:
+                            icon: 'monitor-cellphone'
+                            # on_release: app.root.current = 'config'
+
+                    OneLineAvatarIconListItem:
+                        text: 'Dashboards'
+                        # on_release: app.root.current = 'config'
+                        IconLeftWidget:
+                            icon: 'view-dashboard'
+                            # on_release: app.root.current = 'config'
+
+                    OneLineAvatarIconListItem:
+                        text: 'Configurações'
+                        on_release: app.root.current = 'config'
+                        IconLeftWidget:
+                            icon: 'cog'
+                            on_release: app.root.current = 'config'
+
                 MDFillRoundFlatIconButton:
                     md_bg_color: '#e63946'
                     pos_hint: {'center_x': 0.5,'center_y': .05}
@@ -193,18 +228,63 @@
 
         MDCard:
             md_bg_color: '#333333'
+            spacing: dp(20)
             MDBoxLayout:
                 orientation: 'vertical'
-                padding: 10
-                spacing: 10
+                padding: dp(20)
+                spacing: dp(20)
                 MDCard:
-                    md_bg_color: 'black'
-                    size_hint_max_y: 50
+                    orientation: 'vertical'
+                    md_bg_color: '#333333'
+                    MDFloatLayout:
+                        size_hint_max_y: 30
+                        size_hint_min_y: 30 
+                        MDIcon:
+                            id: iconResults
+                            icon: 'monitor-dashboard'
+                            pos_hint: {'center_x': 0.05,'center_y': .9}
+                        MDLabel:
+                            pos_hint: {'center_y': .9}
+                            x: iconResults.x + dp(20)
+                            padding: dp(10)
+                            text: 'Resultados'
+                    MDBoxLayout:
+                        spacing: dp(10)
+                        orientation: 'horizontal'
+                        MDCard:
+                            size_hint_min_y: 250 
+                            size_hint_min_x: 250 
+                            md_bg_color: '#333333'
+                            FitImage:
+                                id: produtosChart
+                                source: 'src/produtos.png'
+                                size_hint: None, None
+                                size: 250, 250
+                                radius: dp(20)
+                        MDCard:
+                            md_bg_color: '#333333'
+
                 MDCard:
-                    md_bg_color: 'black'
-                MDCard:
-                    md_bg_color: 'black'
-                MDCard:
-                    md_bg_color: 'black'
-                
+                    orientation: 'vertical'
+                    id: cardProd
+                    md_bg_color: '#333333'
+                    MDFloatLayout:
+                        size_hint_min_y: 30 
+                        size_hint_max_y: 30
+                        MDIcon:
+                            id: iconProd
+                            icon: 'monitor-cellphone'
+                            pos_hint: {'center_x': 0.05,'center_y': .9}
+                        MDLabel:
+                            pos_hint: {'center_y': .9}
+                            x: iconProd.x + dp(20)
+                            padding: dp(10)
+                            text: 'Produtos'
+
+<Config>
+    name: 'config'
+    MDIconButton:
+        icon: 'arrow-left'
+        on_release: app.root.current = 'main'
+
 

@@ -3,6 +3,11 @@ from random import randint
 from sqlite3 import connect
 from tkinter import filedialog
 from time import strftime as st
+import plotly_express as px 
+from plotly.io import templates
+import pandas as pd
+from rembg import remove
+from PIL import Image
 
 conn = connect('src/temp.db')
 c = conn.cursor()
@@ -11,6 +16,11 @@ def execute(consulta):
     temp = c.execute(consulta)
     conn.commit()
     return temp
+
+def remove_bg(src):
+    img = Image.open(src)
+    imgRemoved = remove(img)
+    imgRemoved.save(src)
 
 execute('CREATE TABLE IF NOT EXISTS Dados(Loja TEXT, Key INTEGER)')
 execute('CREATE TABLE IF NOT EXISTS Verify(LG BOOLEAN)')
@@ -44,18 +54,20 @@ class Auth:
             else: return 'Senha Vazia'
         else: return 'Email vazio'
 
-    def create(self, email, pwd, nome = None):
+    def create(self, email, pwd, nome):
         link = f'https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key={self.api}'
         if email != '':
-            if pwd != '':
-                auth = rq.post(link, data=json.dumps({"email": email, "password": pwd, "returnSecureToken": True}))
-                res = self.raised_error(auth.json())
-                if res == 'Sucesso':
-                    temp = self.login(email, pwd)
-                    self.update(self.user['idToken'], display_name = nome)
-                    return temp
-                else: return res
-            else: return 'Senha Vazia'
+            if nome != '':
+                if pwd != '':
+                    auth = rq.post(link, data=json.dumps({"email": email, "password": pwd, "returnSecureToken": True}))
+                    res = self.raised_error(auth.json())
+                    if res == 'Sucesso':
+                        temp = self.login(email, pwd)
+                        self.update(self.user['idToken'], display_name = nome)
+                        return temp
+                    else: return res
+                else: return 'Senha Vazia'
+            else: return 'Nome Vazio'
         else: return 'Email Vazio'
 
     def update(self, id_token, display_name = None, photo_url = None, delete_attribute = None):
@@ -187,5 +199,35 @@ class Loja:
 
     def cadastrar_clientes(self): ...
     
+    def get_produtos(self):
+        self.produtos = rq.get(f'{self.link}/{self.id_loja}/Produtos/.json').json()
+        prod = []
+        self.produtosSemEan = []
+        if self.produtos != None:
+            for ean in self.produtos:
+                produtos = self.produtos[ean]
+                x = (ean, produtos['Nome do Produto'], produtos['Quantidade'], produtos['Ultima Atualização'], produtos['Valor de Venda'])
+                prod.append(x)
+                self.produtosSemEan.append(produtos)
+            return prod
+        else: return 'Sem Produtos Disponiveis'
+
+class Charts:
+    def __init__(self):
+        self.loja = Loja()
+        templates.default = 'plotly_dark'
+        self.cl = px.colors.sequential.Darkmint_r
+
+    def chart_produtos(self):
+        p = self.loja.get_produtos() 
+        if p != 'Sem Produtos Disponiveis': 
+            df = pd.DataFrame(self.loja.produtosSemEan)
+            pie = px.pie(df, values='Quantidade', names='Nome do Produto', color_discrete_sequence=self.cl)
+            pie.write_image('src/produtos.png', width=400, height=400)
+
+        
 if __name__ == "__main__":
-    x = Loja()
+    c = Charts()
+    c.chart_produtos()
+    # l = Loja()
+    # print(l.get_produtos())
